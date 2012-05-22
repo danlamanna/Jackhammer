@@ -1,0 +1,18 @@
+{
+    "wordpress": {
+	"default": "http://wordpress.org/latest.zip",
+	"versions": {
+	}
+    },
+
+    "magento":   {
+	"default": "http://www.magentocommerce.com/downloads/assets/1.7.0.0/magento-1.7.0.0.tar.gz",
+	"versions": {
+	    "1.7.0.0": "http://www.magentocommerce.com/downloads/assets/1.7.0.0/magento-1.7.0.0.tar.gz"
+	}
+    },
+
+    "codeigniter": {
+	"default": "http://downloads.codeigniter.com/reactor/CodeIgniter_2.1.0.zip"
+    }
+}
