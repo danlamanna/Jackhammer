@@ -2,6 +2,7 @@
     "_comment": "No trailing slashes on any fields.",
 
     "project_manifest": "/home/dlamanna/projects.json",
+    "package_manifest": "/home/dlamanna/app/etc/manifests/packages.json",
     
     "sql_skel_dir": "/home/dlamanna/app/etc/sql",
     "skeleton_dir": "/home/dlamanna/app/etc/skel",
