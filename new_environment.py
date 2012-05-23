@@ -29,6 +29,8 @@ opt_parser.add_option("-t", "--type",     dest="env_type",                      
 opt_parser.add_option("-c", "--checkout", dest="checkout", action="store_true", help="Pass to do a git/svn checkout of the repositories defined in the project definition.")
 opt_parser.add_option("-d", "--pull-db",  dest="pull_db", action="store_true",  help="Pulls the database from the next highest environment.")
 
+# @todo - add installer flag to run an installer on the created environment
+
 (options, args) = opt_parser.parse_args()
 
 username = options.username

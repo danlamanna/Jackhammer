@@ -77,8 +77,9 @@ class wp_installer(installer.installer):
         # @todo - validation? http://docs.fabfile.org/en/1.4.2/api/core/operations.html?highlight=prompt#fabric.operations.prompt
 
     def _install_package(self):
-        # @todo - skel path is hardcoded for install module, set it as a config option
-        local("cp skel/wp_install/installer.php %(dest)s" % { "dest": self.dest.rstrip("/") })
+        install_skel_dir = json.load(get_server_config())["install_skel_dir"]
+        local("cp %(install_skel_dir)s/wp_install/installer.php %(dest)s" % { "install_skel_dir": install_skel_dir,
+                                                                              "dest":             self.dest.rstrip("/") })
 
         install_mapping = { "site_url":    self.install_details["site_url"],
                             "blog_title":  self.install_details["blog_title"],
@@ -97,4 +98,5 @@ class wp_installer(installer.installer):
     def _clean_files(self):
         local("rm -rf %(dest)s/wordpress" % { "dest": self.dest.rstrip("/") })
         local("rm -f %s" % self.package_filename)
+        # @todo - remove installer.php
         return

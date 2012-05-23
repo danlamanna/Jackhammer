@@ -69,7 +69,9 @@ class environment:
         # reload httpd
         local("/etc/init.d/httpd reload")
         
-        return None 
+        return None
+
+    # @todo - implement remove_environment
 
     def checkout(self):
         for path,repo in self.project_config['repos'].iteritems():
