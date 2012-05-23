@@ -1,5 +1,13 @@
 from abc import ABCMeta, abstractproperty, abstractmethod
 
+import subprocess
+from subprocess import call
+
+from utils import server
+from utils.server import get_server_config
+
+import json
+
 class installer:
     #__metaclass__ = ABCMeta
 
@@ -22,6 +30,19 @@ class installer:
         """ Should check if the file exists already, and if so return (in the case of a failed
         attempt of installing). Otherwise it should download the file (based on version,
         revert to default from the packages manifest). """
+        packages = json.load(open(json.load(get_server_config())["package_manifest"]))
+        current_package = packages[self.package_name]
+
+        self.package_filename = current_package["default"].split("/")[-1]
+
+        try:
+            open(self.package_filename)
+        except IOError,e:
+            subprocess.call(["wget", current_package["default"]],
+                             stdout=self.devnull,
+                             stderr=self.devnull)
+
+        
         return
 
     #@abstractmethod

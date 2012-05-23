@@ -1,106 +1,61 @@
+from fabric.operations import local, prompt
+
 import subprocess
 from subprocess import call
 
-import optparse
+from utils import server
+from utils.server import get_server_config
 
-class magento_installer:
+import installer
+import json, getpass
 
-    op = optparse.OptionParser()
+class mage_installer(installer.installer):
 
-    magento_details = {}
+    package_name     = "magento"
+    package_filename = None
+    dest             = None
+    version          = None
 
-    devnull = open('/dev/null', 'w')
-    
-    def __init__(self):
-        self.op.add_option('--verbose', '-v', action="store_true", dest="verbose")
-        self.op.add_option('--dest',    '-d', default="magento",   dest="dest")
-        self.options, self.args = self.op.parse_args()
-
-        self.filename = "magento-1.7.0.0.tar.gz"
-
-        self._retrieve_file()
-        self._extract_file()
-        self._move_files()
-        self._modifying_files()
-        self._prompt_for_details()
-        self._install_magento()
-        self._clean_files()
-
-    def log_if_verbose(self, message):
-        if self.options.verbose is True:
-            print message
-
-    def _retrieve_file(self):
-        try:
-            open(self.filename)
-            
-            self.log_if_verbose(self.filename + " file exists already, using it.")
-
-        except IOError:
-            self.log_if_verbose("Downloading " + self.filename + " ....")
-
-            subprocess.call(["wget", "http://www.magentocommerce.com/downloads/assets/1.7.0.0/magento-1.7.0.0.tar.gz"],
-                            stdout=self.devnull,
-                            stderr=self.devnull)
-        
-            self.log_if_verbose("Retrieved magento-1.7.0.0.tar.gz")
-
+    install_details  = {}
     
     def _extract_file(self):
-        subprocess.call(["tar", "-zxvf", self.filename],
-                        stdout=self.devnull,
-                        stderr=self.devnull)
-        
-        self.log_if_verbose("Extracted magento-1.7.0.0.tar.gz to ./magento ")
-        
-    def _move_files(self):
-        if self.options.dest is not "magento":
-            import shutil
-            shutil.copytree("magento", self.options.dest)
-
-        self.log_if_verbose("Moving files from ./magento to " + self.options.dest)
+        # @todo - Needs an actual extraction method to implement
+        # based on filetype. - Not safe to assume tar.gz
+        local("tar -zxvf %(archive)s -C %(dest)s" % { "archive": self.package_filename,
+                                                   "dest":    self.dest })
 
     def _modifying_files(self):
-        subprocess.call(["chmod", "-R", "o+w", "media", "var"],
-                        stdout=self.devnull,
-                        stderr=self.devnull)
+        local("chmod -R o+w %(dest)s/media %(dest)s/var" % { "dest": self.dest.rstrip("/") })
 
-        subprocess.call(["chmod", "o+w", "app/etc"],
-                        stdout=self.devnull,
-                        stderr=self.devnull)
-
-        self.log_if_verbose("Modifying permissions...")
+        local("chmod o+w %(dest)s/app/etc" % { "dest": self.dest.rstrip("/") })
 
     def _prompt_for_details(self):
         default_host = "localhost"
 
-        self.magento_details["db_username"] = "dlamanna"#raw_input("Database Username: ")
-        self.magento_details["db_password"] = ""#raw_input("Password: ")
-        self.magento_details["db_name"]     = "dlamanna_testinstaller"#raw_input("Database Name?: ")
-        self.magento_details["db_host"]     = "localhost"#raw_input("Please enter name: %s" % default_host + chr(8)*4)
-        self.magento_details["admin_pass"]  = ""#raw_input("Admin Password?: ")
-        self.magento_details["store_url"]   = "http://dlamanna.testinstaller.dev.com/"#raw_input("Store Url (with trailing slash): ")
-
-        if not self.magento_details["db_host"]:
-            self.magento_details["db_host"] = default_host
-
-    def _install_magento(self):
-        php_string = "php --file %s/install.php" % self.options.dest
-        print php_string
-        subprocess.call(php_string)
-    
-    def _clean_files(self):
-        import shutil, os
-
-        shutil.rmtree("magento")
-        #os.remove(self.filename)
-
-        self.log_if_verbose("Removing original directory, and retrieved file - " + self.filename)
+        self.install_details["db_username"] = "dlamanna"#raw_input("Database Username: ")
+        self.install_details["db_password"] = ""#raw_input("Password: ")
+        self.install_details["db_name"]     = "dlamanna_testinstaller_magento"#raw_input("Database Name?: ")
+        self.install_details["db_host"]     = "localhost"#raw_input("Please enter name: %s" % default_host + chr(8)*4)
+        self.install_details["admin_email"]  = "dan@intellisites.com"
+        self.install_details["admin_username"] = "admin"
+        self.install_details["admin_pass"]  = "letmein2"#raw_input("Admin Password?: ")
+        # @todo - validate password for alphanumeric
+        self.install_details["store_url"]   = "http://dlamanna.testinstaller.dev.com/"#raw_input("Store Url (with trailing slash): ")
         
 
+        if not self.install_details["db_host"]:
+            self.install_details["db_host"] = default_host
 
-if __name__ == '__main__':
-    magento_installer()
-
-
-
+    def _install_package(self):
+        local('php -f %(dest)s/install.php -- --license_agreement_accepted "yes" --locale "en_US" --timezone "America/New_York"  --default_currency "USD" --db_host "%(db_host)s" --db_name "%(db_name)s"        --db_user "%(db_user)s"        --db_pass "%(db_pass)s"        --url "%(store_url)s"        --use_rewrites "yes"        --use_secure "no" --use_secure_admin "no"       --secure_base_url ""        --admin_firstname "John"        --admin_lastname "Doe"        --admin_email "%(admin_email)s"        --admin_username "%(admin_user)s"        --admin_password "%(admin_pass)s"' % { "dest": self.dest.rstrip("/"),
+                                               "db_host":self.install_details["db_host"],
+                                               "db_name":self.install_details["db_name"],
+                                               "db_user":self.install_details["db_username"],
+                                               "db_pass":self.install_details["db_password"],
+                                               "store_url":self.install_details["store_url"],
+                                               "admin_email":self.install_details["admin_email"] ,
+                                               "admin_user":self.install_details["admin_username"],
+                                               "admin_pass":self.install_details["admin_pass"]} )
+    
+    def _clean_files(self):
+        return True

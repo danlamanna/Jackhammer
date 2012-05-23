@@ -20,20 +20,6 @@ class wp_installer(installer.installer):
 
     install_details  = {}
 
-    def _retrieve_file(self):
-        # @todo - this line is way too complicated to understand, break it up
-        packages = json.load(open(json.load(get_server_config())["package_manifest"]))
-        current_package = packages[self.package_name]
-
-        self.package_filename = current_package["default"].split("/")[-1]
-
-        try:
-            open(self.package_filename)
-        except IOError,e:
-            subprocess.call(["wget", current_package["default"]],
-                             stdout=self.devnull,
-                             stderr=self.devnull)
-
     def _extract_file(self):
         if ".zip" not in self.package_filename:
             # @todo - Implement other methods of extraction

@@ -1,5 +1,6 @@
-from install import wp_installer
+from install import wp_installer, mage_installer
 from install.wp_installer import *
+from install.mage_installer import *
 
 from optparse import OptionParser
 
@@ -9,6 +10,7 @@ opt_parser.add_option("-d", "--dest",    dest="dest",    help="Destination direc
 
 (options, args) = opt_parser.parse_args()
 
-#import ipdb; ipdb.set_trace()
 if options.package == "wordpress":
     wp = wp_installer(options.dest)
+elif options.package == "magento":
+    mage = mage_installer(options.dest)
