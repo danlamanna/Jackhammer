@@ -18,16 +18,12 @@ class mage_installer(installer.installer):
 
     install_details  = {}
     
-    def _extract_file(self):
-        # @todo - Needs an actual extraction method to implement
-        # based on filetype. - Not safe to assume tar.gz
-        local("tar -zxvf %(archive)s -C %(dest)s" % { "archive": self.package_filename,
-                                                   "dest":    self.dest })
-
     def _modifying_files(self):
-        local("chmod -R o+w %(dest)s/media %(dest)s/var" % { "dest": self.dest.rstrip("/") })
+        local("mv %(dest)s/magento/* %(dest)s" % { "dest": self.dest })
+        
+        local("chmod -R o+w %(dest)s/media %(dest)s/var" % { "dest": self.dest })
 
-        local("chmod o+w %(dest)s/app/etc" % { "dest": self.dest.rstrip("/") })
+        local("chmod o+w %(dest)s/app/etc" % { "dest": self.dest })
 
     def _prompt_for_details(self):
         default_host = "localhost"
@@ -47,7 +43,7 @@ class mage_installer(installer.installer):
             self.install_details["db_host"] = default_host
 
     def _install_package(self):
-        local('php -f %(dest)s/install.php -- --license_agreement_accepted "yes" --locale "en_US" --timezone "America/New_York"  --default_currency "USD" --db_host "%(db_host)s" --db_name "%(db_name)s"        --db_user "%(db_user)s"        --db_pass "%(db_pass)s"        --url "%(store_url)s"        --use_rewrites "yes"        --use_secure "no" --use_secure_admin "no"       --secure_base_url ""        --admin_firstname "John"        --admin_lastname "Doe"        --admin_email "%(admin_email)s"        --admin_username "%(admin_user)s"        --admin_password "%(admin_pass)s"' % { "dest": self.dest.rstrip("/"),
+        local('php -f %(dest)s/install.php -- --license_agreement_accepted "yes" --locale "en_US" --timezone "America/New_York"  --default_currency "USD" --db_host "%(db_host)s" --db_name "%(db_name)s"        --db_user "%(db_user)s"        --db_pass "%(db_pass)s"        --url "%(store_url)s"        --use_rewrites "yes"        --use_secure "no" --use_secure_admin "no"       --secure_base_url ""        --admin_firstname "John"        --admin_lastname "Doe"        --admin_email "%(admin_email)s"        --admin_username "%(admin_user)s"        --admin_password "%(admin_pass)s"' % { "dest": self.dest,
                                                "db_host":self.install_details["db_host"],
                                                "db_name":self.install_details["db_name"],
                                                "db_user":self.install_details["db_username"],

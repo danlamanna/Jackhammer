@@ -5,9 +5,9 @@ import subprocess
 from subprocess import call
 
 from utils import server
-from utils.server import get_server_config
+from utils.server import *
 
-import installer
+import installer, os
 
 import json, getpass
 
@@ -20,32 +20,19 @@ class wp_installer(installer.installer):
 
     install_details  = {}
 
-    def _extract_file(self):
-        if ".zip" not in self.package_filename:
-            # @todo - Implement other methods of extraction
-            return False
-        else:            
-            local("unzip %(archive)s -d %(dest)s" % { "archive": self.package_filename,
-                                                      "dest":    self.dest })
-            return
-
     def _modifying_files(self):
-        local("mv %(dest)s/wordpress/* %(dest)s/" % { "dest": self.dest.rstrip("/") })
-
-        # create wp-config.php
-        # @todo - Enough of the rstrip business, set it in the init to remove trailing /
-        config_file = self.dest.rstrip("/") + "/wp-config.php"
-        sample_file = self.dest.rstrip("/") + "/wp-config-sample.php"
+        local("mv %(dest)s/wordpress/* %(dest)s/" % { "dest": self.dest })
+        
+        config_file = self.dest + "/wp-config.php"
+        sample_file = self.dest + "/wp-config-sample.php"
 
         local("cat %(sample)s > %(actual)s" % { "sample": sample_file,
                                                 "actual": config_file })
-
-        import re
         
-        replace_mapping = { "database_name_here": prompt("Database Name: "),
-                            "username_here":      prompt("Database User: "),
-                            "password_here":      re.escape(getpass.getpass("Database Password: ")),
-                            "localhost":          prompt("Database Host: ", default="localhost") }
+        replace_mapping = { "database_name_here": self.db_details["database_name"],
+                            "username_here":      self.db_details["database_user"],
+                            "password_here":      self.db_details["database_pass"],
+                            "localhost":          self.db_details["database_host"] }
 
         for string,replace in replace_mapping.iteritems():
             local("sed -i \"s/%(str)s/%(rep)s/g\" %(config_file)s" % { "str": string,
@@ -55,17 +42,16 @@ class wp_installer(installer.installer):
 
     def _prompt_for_details(self):        
         self.install_details["blog_title"]  = prompt("Blog Title: ")
-        self.install_details["site_url"]    = prompt("Site URL: ")
+        self.install_details["site_url"]    = prompt("Site URL: ").rstrip("/")
         self.install_details["admin_user"]  = prompt("Admin User: ")
-        self.install_details["admin_email"] = prompt("Admin Email: ")
+        self.install_details["admin_email"] = prompt("Admin Email: ", validate="[^@]+@[^@]+\.[^@]+")
         self.install_details["admin_pass"]  = getpass.getpass("Admin Password: ")
 
-        # @todo - validation? http://docs.fabfile.org/en/1.4.2/api/core/operations.html?highlight=prompt#fabric.operations.prompt
-
     def _install_package(self):
+        # @todo - make install_skel_dir defined in installer, instead of getting it multiple times
         install_skel_dir = json.load(get_server_config())["install_skel_dir"]
-        local("cp %(install_skel_dir)s/wp_install/installer.php %(dest)s" % { "install_skel_dir": install_skel_dir,
-                                                                              "dest":             self.dest.rstrip("/") })
+        local("cp %(install_skel_dir)s/wp_install/* %(dest)s" % { "install_skel_dir": install_skel_dir,
+                                                                  "dest":             self.dest })
 
         install_mapping = { "site_url":    self.install_details["site_url"],
                             "blog_title":  self.install_details["blog_title"],
@@ -75,14 +61,22 @@ class wp_installer(installer.installer):
 
         import re
         for str,rep in install_mapping.iteritems():            
-            local("sed -i 's/\${"+str+"}/"+re.escape(rep)+"/g' %(installer)s" % { "installer": self.dest.rstrip("/") + "/installer.php" })
+            local("sed -i 's/\${"+str+"}/"+re.escape(rep)+"/g' %(installer)s" % { "installer": self.dest + "/installer.php" })
 
-        local("php -f %(install_file)s" % { "install_file": self.dest.rstrip("/") + "/installer.php" })        
+        local("php -f %(install_file)s" % { "install_file": self.dest + "/installer.php" })        
         return
-    
+
+    # @todo perhaps this could go in installer.py?
+    def _remove_skeleton_files(self):
+        install_skel_dir = json.load(get_server_config())["install_skel_dir"] + "/wp_install"
+
+        for filename in os.listdir(install_skel_dir):
+            local("rm -r %(dest)s/%(filename)s" % { "dest": self.dest,
+                                                    "filename": filename })
 
     def _clean_files(self):
-        local("rm -rf %(dest)s/wordpress" % { "dest": self.dest.rstrip("/") })
+        local("rm -rf %(dest)s/wordpress" % { "dest": self.dest })
         local("rm -f %s" % self.package_filename)
-        # @todo - remove installer.php
+
+        self._remove_skeleton_files()
         return
