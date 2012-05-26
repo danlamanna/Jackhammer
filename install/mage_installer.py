@@ -26,7 +26,7 @@ class mage_installer(installer.installer):
     def _prompt_for_details(self):
         self.install_details["admin_email"]    = prompt("Admin Email: ", validate="[^@]+@[^@]+\.[^@]+")
         self.install_details["admin_username"] = prompt("Admin User: ", default="admin")
-        self.install_details["admin_pass"]     = getpass_validate_regexp("Admin Password: ", "^\w+$")
+        self.install_details["admin_pass"]     = getpass_validate_regexp("Admin Password: ", "^\w{7,25}$")
         self.install_details["store_url"]      = prompt("Store URL: ").rstrip("/") + "/"
 
     def _install_package(self):
@@ -42,4 +42,6 @@ class mage_installer(installer.installer):
                 "admin_pass":  self.install_details["admin_pass"] })
     
     def _clean_files(self):
+        local("rm -f %(package_filename)s" % { "package_filename": self.package_filename })
+        local("rm -r %(dest)s/magento"     % { "dest":             self.dest })
         return True
