@@ -16,8 +16,10 @@ import json
 class installer:
     __metaclass__ = ABCMeta
 
-    def __init__(self, dest, version="default"):
-        self.dest, self.version = dest.rstrip("/"), version
+    db_details = None
+
+    def __init__(self, dest, db_details=None, version="default"):
+        self.dest, self.db_details, self.version = dest.rstrip("/"), db_details, version
 
         if not os.path.exists(self.dest):
             proceed = prompt("Destination %s doesn't exist, create and proceed?: " % self.dest, default="y")
@@ -33,7 +35,10 @@ class installer:
 
         self._retrieve_file()        
         self._extract_file()
-        self.db_details = self._database_details()
+
+        if self.db_details is None:
+            self.db_details = self._database_details()
+            
         self._modifying_files()
         self._prompt_for_details()
         self._install_package()
