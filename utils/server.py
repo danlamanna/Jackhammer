@@ -21,6 +21,20 @@ def extract_archive(archive, dest="."):
         return local(extract_command % { "archive": archive,
                                          "dest":    dest })
 
+def getpass_validate_regexp(prompt_message, regexp):
+    from getpass import getpass
+    import re
+
+    # make regexp a compiled pattern
+    regexp = regexp if type(regexp) != "str" else re.compile(regexp)
+
+    pass_prompt = getpass(prompt_message)
+
+    if re.match(regexp, pass_prompt):
+        return pass_prompt
+    else:
+        return getpass_validate_regexp(prompt_message, regexp)
+
 def _has_mysqldb_module():
     try:
         import MySQLdb        
