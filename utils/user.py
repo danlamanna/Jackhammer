@@ -4,6 +4,8 @@ from fabric.api import *
 
 from fabric.operations import sudo,local
 
+import getpass
+
 import json
 
 class user_utility:
@@ -72,6 +74,9 @@ class user_utility:
             return False
         elif username is 'root':
             print "Let's not be silly."
+            return False
+        elif username is getpass.getuser(): # current user
+            print "Can not remove yourself while logged in."
             return False
         else:
             # do actual checks, (uncommitted changes, etc)
