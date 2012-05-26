@@ -3,6 +3,10 @@
 	"empty": {
 	    "type": "none"
 	},
+	"wptest": {
+		  "type": "wordpress"
+		  },
+
 	"testinstaller": {
 	"type": "magento"
 	}
