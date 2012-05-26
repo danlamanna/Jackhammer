@@ -23,8 +23,7 @@ class environment:
     def create(self):
         conf = json.load(get_server_config())
         self.conf = conf
-
-        #import ipdb; ipdb.set_trace()
+        
         dir_name = self.project
         env_dir  = conf['user_config']['home_dir'] + '/' + self.user + '/' + conf['user_config']['projects_dir'] + '/' + dir_name
         db_name  = self.user + '_' + self.project + '_' + self.project_config['type']
@@ -69,9 +68,32 @@ class environment:
         # reload httpd
         local("/etc/init.d/httpd reload")
         
-        return None
+        return { "directory": env_dir,
+                 "db_name":   db_name }
 
-    # @todo - implement remove_environment
+    def remove_environment(self, preserve_db=False):
+        conf = json.load(get_server_config())
+        self.conf = conf
+        
+        dir_name = self.project
+        env_dir  = conf['user_config']['home_dir'] + '/' + self.user + '/' + conf['user_config']['projects_dir'] + '/' + dir_name
+        db_name  = self.user + '_' + self.project + '_' + self.project_config['type']
+
+        # delete env dir
+        local("rm -r %(envdir)s" % { "envdir": env_dir })
+
+        # delete httpd conf
+        local("rm -f %(envconf)s" % { "envconf": conf["httpd_confd_dir"] + "/" + self.user + ".d/" + self.project + ".conf" })    
+
+        if preserve_db is False:
+            import re
+            # drop database
+            sql = burst_replace('db_name', db_name, open(conf['sql_skel_dir'] + '/drop_db.sql').read())
+
+            local("mysql -u%(username)s -p%(password)s -e \"%(query)s\"" % { "username": conf['mysql_user']['username'],
+                                                                             "password": re.escape(conf['mysql_user']['password']),
+                                                                             "query":    sql.replace('"', '\"') })
+        return
 
     def checkout(self):
         for path,repo in self.project_config['repos'].iteritems():
