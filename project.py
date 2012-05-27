@@ -17,9 +17,6 @@ def create_project(slug):
 
     project_attrs['type'] = prompt("Project Type: ", validate=validate_type_field)
 
-#new_project = project.project('test')
-#new_project.create_project({'bar': 'baz'})
-
 def validate_type_field(val):
     valid_types = ['wordpress', 'magento', 'ci']
 

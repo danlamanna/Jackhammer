@@ -31,6 +31,7 @@ opt_parser.add_option("-u", "--user",         dest="username",                  
 opt_parser.add_option("-p", "--project",      dest="project",                           help="Project to use from the manifest, also for credentials.")
 opt_parser.add_option("-t", "--type",         dest="env_type",                          help="Type of environment, must be: development, staging, or production")
 opt_parser.add_option("-w", "--with-package", dest="with_package",                      help="Create the environment with a package installed, wordpress, magento, or codeigniter.")
+opt_parser.add_option("-a", "--url",          dest="url",                               help="URL of the environment.")
 opt_parser.add_option("-c", "--checkout",     dest="checkout",     action="store_true", help="Pass to do a git/svn checkout of the repositories defined in the project definition.")
 opt_parser.add_option("-d", "--pull-db",      dest="pull_db",      action="store_true", help="Pulls the database from the next highest environment.")
 
@@ -58,7 +59,7 @@ if not project_exists_in_manifest(project):
     import sys
     sys.exit()
 
-env = environment(username, project, env_type)
+env = environment(username, project, env_type, options.url)
 env_results = env.create()
 
 conf = json.load(get_server_config())
