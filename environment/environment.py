@@ -2,6 +2,8 @@ from manifest import *
 from utils.user import burst_replace
 from utils.server import *
 
+from project.project import *
+
 from fabric.operations import local
 from fabric.api import *
 
@@ -13,10 +15,11 @@ class environment:
 
     project_config = None
 
-    def __init__(self, user, project, env_type):
+    def __init__(self, user, project, env_type, env_url=None):
         self.user = user
         self.project = project
         self.env_type = env_type
+        self.env_url  = env_url
 
         self.project_config = get_project_manifest()['projects'][project]
 
@@ -30,7 +33,7 @@ class environment:
 
         self.env_dir = env_dir
 
-        import re
+        import re,time
 
         # create database, grant privs
         sql = burst_replace('db_name', db_name, open(conf['sql_skel_dir'] + '/add_db.sql').read())
@@ -48,8 +51,28 @@ class environment:
 
         # setup env directory
         local("mkdir %s" % env_dir)
-        local("cp -r %(proj_skel_dir)s/* %(envdir)s" % { "proj_skel_dir": conf['skeleton_dir'] + '/project',
-                                                         "envdir":        env_dir })
+        local("cp -r %(env_skel_dir)s/* %(envdir)s" % { "env_skel_dir": conf['skeleton_dir'] + '/environment',
+                                                        "envdir":        env_dir })
+
+        env_config = env_config_skel  = open(conf["skeleton_dir"] + "/environment/env_config.json").read()
+        # @todo - this is clearly a bit broken, as it uses the default user credentials and localhost ALWAYS
+        env_replacements = { "env_type":       self.env_type,
+                             "env_url":        self.env_url,
+                             "env_project":    self.project,
+                             "env_created_at": str(time.time()).split(".")[0],
+                             "db_name":        db_name,
+                             "db_user":        conf["mysql_user"]["username"],
+                             "db_pass":        conf["mysql_user"]["password"],
+                             "db_host":        "localhost" }
+
+        # fill in env_config.json
+        for k,v in env_replacements.iteritems():
+            env_config = burst_replace(k, v, env_config)
+
+        # write the replaced data
+        env_config_file = open("%s/env_config.json" % env_dir, "w")
+        env_config_file.write(env_config)
+        env_config_file.close()
 
         local("chown -R %(user)s:%(group)s %(envdir)s" % { "user":   self.user,
                                                            "group":  conf['user_config']['default_group'],
@@ -108,6 +131,25 @@ class environment:
         
         return None
 
+    def _get_next_highest_env_type(self):
+        if self.env_type == "production":
+            return False
+        elif self.env_type == "staging":
+            return "production"
+        elif self.env_type == "development":
+            return "staging"
+
     def pull_db(self):
-        print "Pulling Db...Not really."
-        return None
+        env_to_pull_from = self._get_next_highest_env_type()
+        source_env       = get_project_environment(self.project, env_to_pull_from)
+
+        if not env_to_pull_from:
+            print "This is the definitive data source, no other environments to pull from."
+            return
+        elif not source_env:
+            print "No higher project environment exists, no where to pull from."
+            return
+        else:
+            # pull db using source_env info
+
+        return
