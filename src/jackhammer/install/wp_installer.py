@@ -4,8 +4,8 @@ from fabric.context_managers import cd
 import subprocess
 from subprocess import call
 
-from utils import server
-from utils.server import *
+from jackhammer.utils import server
+from jackhammer.utils.server import *
 
 import installer, os
 

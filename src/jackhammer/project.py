@@ -1,7 +1,7 @@
-from utils import server
-from utils.server import *
+from jackhammer.utils import server
+from jackhammer.utils.server import *
 
-from project import project
+from jackhammer.project import project
 
 from fabric.operations import local, prompt
 

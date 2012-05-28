@@ -1,0 +1,3 @@
+#!/usr/local/pythonbrew/pythons/Python-2.7/bin/python
+
+print 'Running: jackhammer cli script.'

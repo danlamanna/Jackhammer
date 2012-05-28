@@ -1,8 +1,8 @@
-from manifest import *
-from utils.user import burst_replace
-from utils.server import *
+from jackhammer.manifest import *
+from jackhammer.utils.user import burst_replace
+from jackhammer.utils.server import *
 
-from project.project import *
+from jackhammer.project.project import *
 
 from fabric.operations import local
 from fabric.api import *

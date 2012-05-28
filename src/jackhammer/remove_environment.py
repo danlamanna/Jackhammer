@@ -1,7 +1,7 @@
-from environment.environment import *
+from jackhammer.environment.environment import *
 
-from project import project
-from project.project import *
+from jackhammer.project import project
+from jackhammer.project.project import *
 
 from optparse import OptionParser
 

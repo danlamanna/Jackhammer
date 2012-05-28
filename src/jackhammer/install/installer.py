@@ -7,9 +7,9 @@ import os,re,getpass
 
 from fabric.operations import prompt,local
 
-from utils import server
-from utils.server import *
-from utils.server import _test_mysql_connection
+from jackhammer.utils import server
+from jackhammer.utils.server import *
+from jackhammer.utils.server import _test_mysql_connection
 
 import json
 

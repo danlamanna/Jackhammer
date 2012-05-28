@@ -1,13 +1,13 @@
-from utils import user
-from utils.user import user_utility
-from utils.user import user_exists
+from jackhammer.utils import user
+from jackhammer.utils.user import user_utility
+from jackhammer.utils.user import user_exists
 
-from install import installer, wp_installer, mage_installer
+from jackhammer.install import installer, wp_installer, mage_installer
 
-from project import project
-from project.project import *
-from manifest import get_project_manifest
-from environment.environment import *
+from jackhammer.project import project
+from jackhammer.project.project import *
+from jackhammer.manifest import get_project_manifest
+from jackhammer.environment.environment import *
 
 from fabric.operations import prompt
 

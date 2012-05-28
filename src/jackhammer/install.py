@@ -1,6 +1,6 @@
-from install import wp_installer, mage_installer
-from install.wp_installer import *
-from install.mage_installer import *
+from jackhammer.install import wp_installer, mage_installer
+from jackhammer.install.wp_installer import *
+from jackhammer.install.mage_installer import *
 
 from optparse import OptionParser
 

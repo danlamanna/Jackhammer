@@ -1,5 +1,5 @@
-from manifest import get_project_manifest
-from utils.server import get_server_config
+from jackhammer.manifest import get_project_manifest
+from jackhammer.utils.server import get_server_config
 
 from fabric.operations import prompt, local
 

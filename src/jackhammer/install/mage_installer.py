@@ -3,10 +3,10 @@ from fabric.operations import local, prompt
 import subprocess
 from subprocess import call
 
-from utils import server
-from utils.server import get_server_config, getpass_validate_regexp
+from jackhammer.utils import server
+from jackhammer.utils.server import get_server_config, getpass_validate_regexp
 
-import installer
+import jackhammer.installer
 import json, getpass
 
 class mage_installer(installer.installer):
