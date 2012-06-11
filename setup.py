@@ -8,7 +8,7 @@ setup(name='jackhammer',
       author='Dan Lammana, Chris Kotfila',
       author_email='dev@burstmarketing.net',
       url='http://burstmarketing.net',
-      package_dir = {'': 'src' },
+      package_dir = {'jackhammer': 'src/jackhammer' },
       packages = ['jackhammer', 
       'jackhammer.database', 
       'jackhammer.install', 
@@ -19,8 +19,9 @@ setup(name='jackhammer',
       'jackhammer.utils'],
       provides = ['jackhammer'],
       scripts = ['scripts/jackhammer'],
-      package_data={'jackhammer': ['etc/server_config.json']},
-      
-      
-      
+      package_data={'jackhammer': ['etc/server_config.json',
+                                   'etc/sql/*.sql',
+                                   'etc/skel/*.conf',
+                                   'etc/skel/*.sql',
+                                   'etc/skel/environment/*.json']}
     )
