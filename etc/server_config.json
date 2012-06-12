@@ -1,13 +1,13 @@
 {
     "_comment": "No trailing slashes on any fields.",
 
-    "project_manifest": "/home/dlamanna/app/etc/manifests/projects.json",
-    "package_manifest": "/home/dlamanna/app/etc/manifests/packages.json",
+    "project_manifest": "/etc/jackhammer/projects.json",
+    "package_manifest": "/etc/jackhammer/packages.json",
     
-    "install_skel_dir": "/home/dlamanna/app/install/skel",
+    "install_skel_dir": "/etc/jackhammer/skel",
 
-    "sql_skel_dir": "/home/dlamanna/app/etc/sql",
-    "skeleton_dir": "/home/dlamanna/app/etc/skel",
+    "sql_skel_dir": "/etc/jackhammer/sql",
+    "skeleton_dir": "/etc/jackhammer/skel",
     "skeleton_files": {
 	"httpd_user_conf": "user.conf"
     },

@@ -150,6 +150,6 @@ class environment:
             print "No higher project environment exists, no where to pull from."
             return
         else:
-            # pull db using source_env info
+        # pull db using source_env info
+            return
 
-        return

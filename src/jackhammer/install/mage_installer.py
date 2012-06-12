@@ -6,10 +6,10 @@ from subprocess import call
 from jackhammer.utils import server
 from jackhammer.utils.server import get_server_config, getpass_validate_regexp
 
-import jackhammer.installer
+from jackhammer import install
 import json, getpass
 
-class mage_installer(installer.installer):
+class mage_installer(install.installer.installer):
 
     package_name     = "magento"
     package_filename = None
@@ -30,7 +30,7 @@ class mage_installer(installer.installer):
         self.install_details["store_url"]      = prompt("Store URL: ").rstrip("/") + "/"
 
     def _install_package(self):
-        local('php -f %(dest)s/install.php -- --license_agreement_accepted "yes" --locale "en_US" --timezone "America/New_York" --default_currency "USD" --db_host "%(db_host)s" --db_name "%(db_name)s" --db_user "%(db_user)s" --db_pass "%(db_pass)s" --url "%(store_url)s" --use_rewrites "yes" --use_secure "no" --use_secure_admin "no" --secure_base_url "" --admin_firstname "John" --admin_lastname "Doe" --admin_email "%(admin_email)s" --admin_username "%(admin_user)s" --admin_password "%(admin_pass)s"' %
+        local('php -f %(dest)s/install.php -- --license_agreement_accepted "yes" --locale "en_US" --timezone "America/New_York" --default_currency "USD" --db_host "%(db_host)s" --db_name "%(db_name)s" --db_user "%(db_user)s" --db_pass "%(db_pass)s" --url "%(store_url)s" --use_rewrites "yes" --use_secure "no" --use_secure_admin "no" --secure_base_url "" --admin_firstname "John" --admin_lastname "Doe" --admin_email "%(admin_email)s" --admin_username "%(admin_user)s" --admin_password "%(admin_pass)s" --skip_url_validation Yes' %
               { "dest":        self.dest,
                 "db_host":     self.db_details["database_host"],
                 "db_name":     self.db_details["database_name"],

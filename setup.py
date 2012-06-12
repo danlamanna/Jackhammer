@@ -1,6 +1,11 @@
 #!/usr/bin/env python
 
 from distutils.core import setup
+import os
+
+if not os.path.exists("/etc/jackhammer"):
+        os.makedirs("/etc/jackhammer")
+
 
 setup(name='jackhammer',
       version='0.1dev',
@@ -19,9 +24,17 @@ setup(name='jackhammer',
       'jackhammer.utils'],
       provides = ['jackhammer'],
       scripts = ['scripts/jh'],
-      package_data={'jackhammer': ['etc/server_config.json',
-                                   'etc/sql/*.sql',
-                                   'etc/skel/*.conf',
-                                   'etc/skel/*.sql',
-                                   'etc/skel/environment/*.json']}
-    )
+      data_files=[('/etc/jackhammer', ['etc/server_config.json','etc/packages.json']),
+                  ('/etc/jackhammer/skel', ['etc/skel/mysql_add_project_db.sql',
+                                            'etc/skel/user.conf',
+                                            'etc/skel/project.conf',
+                                            'etc/skel/mysql_add_user.sql']),
+                  ('/etc/jackhammer/skel/wp_install', ['etc/skel/wp_install/installer.php']),
+                  ('/etc/jackhammer/skel/environment', ['etc/skel/environment/env_config.json']),
+                  ('/etc/jackhammer/sql', [ 'etc/sql/drop_user.sql',
+                                            'etc//sql/add_user.sql',
+                                            'etc/sql/grant_privs.sql',
+                                            'etc/sql/add_db.sql',
+                                            'etc/sql/drop_db.sql' ])
+                                            ]
+        )

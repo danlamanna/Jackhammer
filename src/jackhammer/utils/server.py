@@ -1,7 +1,8 @@
+from distutils.sysconfig import get_python_lib
 from fabric.operations import local
 
 def get_server_config():
-    return open('/home/dlamanna/app/server_config.json')
+    return open('/etc/jackhammer/server_config.json')
 
 def extract_archive(archive, dest="."):
     extract_command = None
