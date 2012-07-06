@@ -1,4 +1,50 @@
 #!/usr/bin/env python
 
+import argparse
 import jackhammer
-print 'Running: jackhammer cli script.'
+
+from jackhammer.utils.user import user_exists, user_utility
+
+from fabric.operations import prompt
+
+parser = argparse.ArgumentParser()
+
+parser.add_argument("crud",   choices=["create", "remove"], help="crud operation to perform")
+parser.add_argument("entity", choices=["env"],              help="env only for now")
+
+parser.add_argument("--user",         required=True,                                                   help="username, may or may not be required depending crud/entity")
+parser.add_argument("--project",      required=True,                                                   help="project to use from manifest")
+parser.add_argument("--type",         required=True, choices=["development", "staging", "production"], help="type of environment")
+parser.add_argument("--with-package", choices=["wordpress", "magento", "codeigniter"],                 help="create the environment with a package installed")
+parser.add_argument("--url",                                                                           help="url of the environment, used for DB find/replace")
+parser.add_argument("--checkout",     action="store_true",                                             help="pass to do an svn checkout of the repos defined in the project")
+parser.add_argument("--pull-db",      action="store_true",                                             help="pulls the database from the next highest environment")
+
+args = parser.parse_args()
+
+"""
+jh create env
+jh remove env
+"""
+
+# have at least - crud, entity, user, project, and type by now
+
+if args.crud == "create":
+    if args.entity == "env":
+        # create env
+        if not user_exists(args.user):
+            proceed = prompt("User %s doesn't exist, create and proceed?: " % args.user, default="y")
+
+            if proceed is not "y":
+                print "Aborting"
+                import sys
+                sys.exit()
+            else:
+                user = user_utility('/home/dlamanna/app/server_config.json')
+                
+                from getpass import getpass
+                user.add_user(args.user, getpass("Users Password: "))
+
+                print "User %s create." % args.user
+        else:
+            print "User %s exists." % args.user
