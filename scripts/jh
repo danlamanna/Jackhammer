@@ -34,4 +34,7 @@ if args.crud == "create" and args.entity == "env":
     create_user_if_not_exists(args.user)
     create_env(args)
 elif args.crud == "remove" and args.entity == "env":
-    remove_env(args)
+    if remove_env(args) is True:
+        print "Environment removed successfully."
+    else:
+        print "Something went wrong."
