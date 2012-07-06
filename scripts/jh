@@ -40,7 +40,7 @@ if args.crud == "create":
                 import sys
                 sys.exit()
             else:
-                user = user_utility('/home/dlamanna/app/server_config.json')
+                user = user_utility('/etc/jackhammer/server_config.json')
                 
                 from getpass import getpass
                 user.add_user(args.user, getpass("Users Password: "))
