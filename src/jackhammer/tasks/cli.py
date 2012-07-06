@@ -10,12 +10,14 @@ def create_env(args):
         import sys
         sys.exit()
     else:
-        print "Creating env the right way."
         env = environment(args.user, args.project, args.type, args.url)
     
         env_results = env.create()
+
+        if args.checkout:
+            env.checkout()        
         
-        # implement with-package, pull-db, checkout
+        # @todo implement with-package, pull-db
 
 def remove_env(args):
     if not project_exists(args.project):
