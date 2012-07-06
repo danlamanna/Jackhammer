@@ -5,6 +5,8 @@ import jackhammer
 
 from jackhammer.utils.user import user_exists, user_utility
 
+from jackhammer.tasks.cli import create_env, remove_env, create_user_if_not_exists
+
 from fabric.operations import prompt
 
 parser = argparse.ArgumentParser()
@@ -19,6 +21,7 @@ parser.add_argument("--with-package", choices=["wordpress", "magento", "codeigni
 parser.add_argument("--url",                                                                           help="url of the environment, used for DB find/replace")
 parser.add_argument("--checkout",     action="store_true",                                             help="pass to do an svn checkout of the repos defined in the project")
 parser.add_argument("--pull-db",      action="store_true",                                             help="pulls the database from the next highest environment")
+parser.add_argument("--preserve-db",  action="store_true",                                             help="for removing envs - will preserve the database")
 
 args = parser.parse_args()
 
@@ -27,24 +30,8 @@ jh create env
 jh remove env
 """
 
-# have at least - crud, entity, user, project, and type by now
-
-if args.crud == "create":
-    if args.entity == "env":
-        # create env
-        if not user_exists(args.user):
-            proceed = prompt("User %s doesn't exist, create and proceed?: " % args.user, default="y")
-
-            if proceed is not "y":
-                print "Aborting"
-                import sys
-                sys.exit()
-            else:
-                user = user_utility('/etc/jackhammer/server_config.json')
-                
-                from getpass import getpass
-                user.add_user(args.user, getpass("Users Password: "))
-
-                print "User %s create." % args.user
-        else:
-            print "User %s exists." % args.user
+if args.crud == "create" and args.entity == "env":
+    create_user_if_not_exists(args.user)
+    create_env(args)
+elif args.crud == "remove" and args.entity == "env":
+    remove_env(args)
