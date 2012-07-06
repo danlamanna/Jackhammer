@@ -1,25 +1,24 @@
 from jackhammer.utils.user import user_exists, user_utility
-from jackhammer.project.project import project_exists_in_manifest
+from jackhammer.manifest import project_exists
+
+from jackhammer.environment.environment import *
 
 def create_env(args):
-    if not project_exists_in_manifest(args.project):
+    if not project_exists(args.project):
         print "Project doesn't exist in manifest, nothing to do here."
         
         import sys
         sys.exit()
-        
+    else:
+        print "Creating env the right way."
         env = environment(args.user, args.project, args.type, args.url)
     
         env_results = env.create()
         
         # implement with-package, pull-db, checkout
-        
-        print "Creating env the right way."
-    else:
-        print "Project doesn't exist in manifest, nothing to do."
 
 def remove_env(args):
-    if not project_exists_in_manifest(args.project):
+    if not project_exists(args.project):
         print "Project doesn't exist in manifest, nothing to do."
         
         import sys
@@ -31,7 +30,7 @@ def remove_env(args):
         
         env.remove(args.preserve_db)
         
-    print "Removing env"
+    return True
 
 def create_user_if_not_exists(user):
     if not user_exists(user):
