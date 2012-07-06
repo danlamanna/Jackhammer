@@ -1,5 +1,5 @@
 from jackhammer.manifest import *
-from jackhammer.utils.user import burst_replace
+from jackhammer.utils.replacer import jh_replace
 from jackhammer.utils.server import *
 
 from jackhammer.project.project import *
@@ -21,7 +21,7 @@ class environment:
         self.env_type = env_type
         self.env_url  = env_url
 
-        self.project_config = get_project_manifest()['projects'][project]
+        self.project_config = get_project({ "slug": project })
 
     def create(self):
         conf = json.load(get_server_config())
@@ -36,14 +36,14 @@ class environment:
         import re,time
 
         # create database, grant privs
-        sql = burst_replace('db_name', db_name, open(conf['sql_skel_dir'] + '/add_db.sql').read())
+        sql = jh_replace('db_name', db_name, open(conf['sql_skel_dir'] + '/add_db.sql').read())
 
         local("mysql -u%(username)s -p%(password)s -e \"%(query)s\"" % { "username": conf['mysql_user']['username'],
                                                                          "password": re.escape(conf['mysql_user']['password']),
                                                                          "query":    sql.replace('"', '\"') })
 
-        sql = burst_replace('db_name', db_name, open(conf['sql_skel_dir'] + '/grant_privs.sql').read())
-        sql = burst_replace('db_user', self.user, sql)
+        sql = jh_replace('db_name', db_name, open(conf['sql_skel_dir'] + '/grant_privs.sql').read())
+        sql = jh_replace('db_user', self.user, sql)
 
         local("mysql -u%(username)s -p%(password)s -e \"%(query)s\"" % { "username": conf['mysql_user']['username'],
                                                                          "password": re.escape(conf['mysql_user']['password']),
@@ -67,7 +67,7 @@ class environment:
 
         # fill in env_config.json
         for k,v in env_replacements.iteritems():
-            env_config = burst_replace(k, v, env_config)
+            env_config = jh_replace(k, v, env_config)
 
         # write the replaced data
         env_config_file = open("%s/env_config.json" % env_dir, "w")
@@ -81,8 +81,8 @@ class environment:
 
         # add httpd conf
         httpd_conf = open(conf['skeleton_dir'] + '/project.conf').read()
-        httpd_conf = burst_replace('username', self.user, httpd_conf)
-        httpd_conf = burst_replace('project', self.project, httpd_conf)
+        httpd_conf = jh_replace('username', self.user, httpd_conf)
+        httpd_conf = jh_replace('project', self.project, httpd_conf)
 
         new_httpd_conf = open(conf['httpd_confd_dir'] + '/' + self.user + '.d/' + self.project + '.conf', 'w')
         new_httpd_conf.write(httpd_conf)
@@ -94,7 +94,7 @@ class environment:
         return { "directory": env_dir,
                  "db_name":   db_name }
 
-    def remove_environment(self, preserve_db=False):
+    def remove(self, preserve_db=False):
         conf = json.load(get_server_config())
         self.conf = conf
         
@@ -111,7 +111,7 @@ class environment:
         if preserve_db is False:
             import re
             # drop database
-            sql = burst_replace('db_name', db_name, open(conf['sql_skel_dir'] + '/drop_db.sql').read())
+            sql = jh_replace('db_name', db_name, open(conf['sql_skel_dir'] + '/drop_db.sql').read())
 
             local("mysql -u%(username)s -p%(password)s -e \"%(query)s\"" % { "username": conf['mysql_user']['username'],
                                                                              "password": re.escape(conf['mysql_user']['password']),
