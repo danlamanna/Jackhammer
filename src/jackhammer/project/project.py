@@ -33,9 +33,6 @@ class project:
             project_manifest['projects'][self.slug] = attributes_dict
             json.dump(project_manifest, open(self.server_config["project_manifest"], "w+"), indent=4)
             
-def project_exists_in_manifest(project_slug):
-    return project_slug in get_project_manifest()['projects']
-
 def get_project_environment(project_slug, env_type):
     try:
         return get_project_manifest()["projects"][project_slug]["environments"][env_type]
